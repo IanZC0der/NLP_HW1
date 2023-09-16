@@ -104,7 +104,9 @@ def vectorize_corpus(corpus, feature_dict):
 # X is a Numpy array
 # No return value
 def normalize(X):
-    pass
+    for col in range(X.shape[1]):
+        max_val, min= max(X[,col]), min(X[, col])
+
 
 
 # Trains a model on a training corpus
