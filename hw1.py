@@ -17,12 +17,12 @@ sentence_enders = set(['.', '?', '!', ';'])
 def load_corpus(corpus_path):
     result = []
     
-    with open(corpus_path, "r") as corpus:
-        for line in file:
+    with open(corpus_path, "r") as corpus_file:
+        for line in corpus_file:
             line = line.strip()
             words = line.split()
             snippet = words[:-1]
-            lable = int(words[-1])
+            label = int(words[-1])
             result.append((snippet, label))
     return result
 
@@ -96,7 +96,7 @@ def vectorize_corpus(corpus, feature_dict):
     X = numpy.empty([len(corpus), len(feature_dict)])
     Y = numpy.empty(len(corpus))
     for i in range(len(corpus)):
-        X[i,], Y[i]= vectorize_snippet(i[0]), i[1]
+        X[i,:], Y[i,:]= vectorize_snippet(i[0]), i[1]
     return (X, Y)
 
 
@@ -105,15 +105,24 @@ def vectorize_corpus(corpus, feature_dict):
 # No return value
 def normalize(X):
     for col in range(X.shape[1]):
-        max_val, min= max(X[,col]), min(X[, col])
-
+        max_val, min_val = np.max(X[:,col]), np.min(X[:, col])
+        X[:,col] = X[:,col] - min_val / (max_val - min_val)
 
 
 # Trains a model on a training corpus
 # corpus_path is a string
 # Returns a LogisticRegression
 def train(corpus_path):
-    pass
+    corpus = load_corpus(corpus_path)
+    for i in corpus:
+        i[0] = tag_negation(i[0])
+    feature_dict = get_feature_dictionary(corpus)
+    vector = vectorize_corpus(corpus, feature_dict)
+    normalize(vector[0])
+    model = sklearn.linear_model.LogisticRegression()
+    model.fit(vector[0], vector[1])
+    return (model.coef_, vector[1])
+    
 
 
 # Calculate precision, recall, and F-measure
@@ -142,12 +151,13 @@ def get_top_features(logreg_model, feature_dict, k=1):
 
 def main(args):
     model, feature_dict = train('train.txt')
+    print(model)
 
-    print(test(model, feature_dict, 'test.txt'))
+    # print(test(model, feature_dict, 'test.txt'))
 
-    weights = get_top_features(model, feature_dict)
-    for weight in weights:
-        print(weight)
+    # weights = get_top_features(model, feature_dict)
+    # for weight in weights:
+    #     print(weight)
     
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
