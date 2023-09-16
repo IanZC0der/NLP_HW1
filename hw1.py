@@ -67,7 +67,16 @@ def tag_negation(snippet):
 # corpus is a list of tuples (snippet, label)
 # Returns a dictionary {word: index}
 def get_feature_dictionary(corpus):
-    pass
+    feature_dict = {}
+    counter = 0
+    for sentence in corpus:
+        for word in sentence[0]:
+            if word not in feature_dict:
+                feature_dict[word] = counter
+                counter += 1
+    return feature_dict
+            
+            
     
 
 # Converts a snippet into a feature vector
