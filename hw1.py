@@ -44,12 +44,15 @@ def tag_negation(snippet):
     tagged_string = nltk.pos_tag(nltk.tokenize(temp_string))
     length = len(snippet)
     negation_index = 0
+    # find the negation word
     while not is_negation(snippet[negation_index]):
         negation_index += 1
+    # no tagging if the case is "not only"
     if snippet[negation_index] == "not" and snippet[negation_index+1] == "only":
         return snippet
     tagging_pos = negation_index + 1
     while tagging_pos < length:
+        # break if find either sentence-ending punctuation, a negation-ending word, or a comparative
         if snippet[tagging_pos] in negation_enders or snippet[tagging_pos] in sentence_enders or (tagged_string[tagging_pos][-1] in set(["JJR", "RBR"])):
             break
         snippet[tagging_pos] = "NOT_" + snippet[tagging_pos]
