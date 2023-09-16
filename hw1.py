@@ -130,7 +130,21 @@ def train(corpus_path):
 # Y_test is a Numpy array
 # Returns a tuple of floats
 def evaluate_predictions(Y_pred, Y_test):
-    pass
+    length = Y_pred.size
+    TP = FP = FN = 0
+    for i in range(length):
+        if Y_test[i] == 1:
+            if Y_pred[i] == 1:
+                TP += 1
+            else:
+                FN += 1
+        elif Y_test[i] == 0 and Y_pred[i] == 1:
+            FP += 1
+    p = TP/(TP+FP)
+    r = TP/(TP+FN)
+    f = 2*p*r/(p+r)
+    return (p, r, f)
+                
 
 
 # Evaluates a model on a test corpus and prints the results
