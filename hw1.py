@@ -40,7 +40,24 @@ def is_negation(word):
 # snippet is a list of strings
 # Returns a list of strings
 def tag_negation(snippet):
-    pass
+    temp_string = " ".join(snippet) #convert the snippet to a single string
+    tagged_string = nltk.pos_tag(nltk.tokenize(temp_string))
+    length = len(snippet)
+    negation_index = 0
+    while not is_negation(snippet[negation_index]):
+        negation_index += 1
+    if snippet[negation_index] == "not" and snippet[negation_index+1] == "only":
+        return snippet
+    tagging_pos = negation_index + 1
+    while tagging_pos < length:
+        if snippet[tagging_pos] in negation_enders or snippet[tagging_pos] in sentence_enders or (tagged_string[tagging_pos][-1] in set(["JJR", "RBR"])):
+            break
+        snippet[tagging_pos] = "NOT_" + snippet[tagging_pos]
+        tagging_pos += 1
+    return snippet
+        
+        
+        
 
 
 # Assigns to each unigram an index in the feature vector
