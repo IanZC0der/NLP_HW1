@@ -15,7 +15,16 @@ sentence_enders = set(['.', '?', '!', ';'])
 # corpus_path is a string
 # Returns a list of (string, int) tuples
 def load_corpus(corpus_path):
-    pass
+    result = []
+    
+    with open(corpus_path, "r") as corpus:
+        for line in file:
+            line = line.strip()
+            words = line.split()
+            snippet = words[:-1]
+            lable = int(words[-1])
+            result.append((snippet, label))
+    return result
 
 
 # Checks whether or not a word is a negation word
