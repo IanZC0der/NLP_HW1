@@ -31,7 +31,9 @@ def load_corpus(corpus_path):
 # word is a string
 # Returns a boolean
 def is_negation(word):
-    pass
+    if word.endswith("-n't") or word in negation_words:
+        return True
+    return False
 
 
 # Modifies a snippet to add negation tagging
