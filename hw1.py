@@ -75,8 +75,6 @@ def get_feature_dictionary(corpus):
                 feature_dict[word] = counter
                 counter += 1
     return feature_dict
-            
-            
     
 
 # Converts a snippet into a feature vector
@@ -84,7 +82,10 @@ def get_feature_dictionary(corpus):
 # feature_dict is a dictionary {word: index}
 # Returns a Numpy array
 def vectorize_snippet(snippet, feature_dict):
-    pass
+    feature_vector = numpy.zeros(len(feature_dict))
+    for word in snippet:
+        feature_vector[feature_dict[word]] += 1
+    return feature_vector
 
 
 # Trains a classification model (in-place)
@@ -92,7 +93,11 @@ def vectorize_snippet(snippet, feature_dict):
 # feature_dict is a dictionary {word: label}
 # Returns a tuple (X, Y) where X and Y are Numpy arrays
 def vectorize_corpus(corpus, feature_dict):
-    pass
+    X = numpy.empty([len(corpus), len(feature_dict)])
+    Y = numpy.empty(len(corpus))
+    for i in range(len(corpus)):
+        X[i,], Y[i]= vectorize_snippet(i[0]), i[1]
+    return (X, Y)
 
 
 # Performs min-max normalization (in-place)
