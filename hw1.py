@@ -96,7 +96,7 @@ def vectorize_corpus(corpus, feature_dict):
     X = numpy.empty([len(corpus), len(feature_dict)])
     Y = numpy.empty(len(corpus))
     for i in range(len(corpus)):
-        X[i,:], Y[i,:]= vectorize_snippet(i[0]), i[1]
+        X[i,:], Y[i]= vectorize_snippet(i[0]), i[1]
     return (X, Y)
 
 
@@ -106,6 +106,7 @@ def vectorize_corpus(corpus, feature_dict):
 def normalize(X):
     for col in range(X.shape[1]):
         max_val, min_val = np.max(X[:,col]), np.min(X[:, col])
+        if max_val == min_val: continue
         X[:,col] = X[:,col] - min_val / (max_val - min_val)
 
 
@@ -121,7 +122,7 @@ def train(corpus_path):
     normalize(vector[0])
     model = sklearn.linear_model.LogisticRegression()
     model.fit(vector[0], vector[1])
-    return (model.coef_, vector[1])
+    return (model, feature_dict)
     
 
 
@@ -152,7 +153,14 @@ def evaluate_predictions(Y_pred, Y_test):
 # corpus_path is a string
 # Returns a tuple of floats
 def test(model, feature_dict, corpus_path):
-    pass
+    corpus = load_corpus(corpus_path)
+    for i in corpus:
+        i[0] = tag_negation(i[0])
+    vector = vectorize_corpus(corpus, feature_dict)
+    normalize(vector[0])
+    Y_pred = model.predict(vector[0])
+    Y_test = vector[1]
+    return evaluate_predictions(Y_pred, Y_test)
 
 
 # Selects the top k highest-weight features of a logistic regression model
