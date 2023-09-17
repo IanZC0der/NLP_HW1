@@ -20,8 +20,8 @@ def load_corpus(corpus_path):
     with open(corpus_path, "r") as corpus_file:
         for line in corpus_file:
             line = line.strip()
-            words = line.split()
-            snippet = words[:-1]
+            words = line.split("\t")
+            snippet = words[0].split()
             label = int(words[-1])
             result.append((snippet, label))
     return result
