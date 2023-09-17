@@ -16,14 +16,16 @@ sentence_enders = set(['.', '?', '!', ';'])
 # Returns a list of (string, int) tuples
 def load_corpus(corpus_path):
     result = []
+    corpus_file = open(corpus_path, 'r')
     
-    with open(corpus_path, "r") as corpus_file:
-        for line in corpus_file:
-            line = line.strip()
-            words = line.split("\t")
-            snippet = words[0].split()
-            label = int(words[-1])
-            result.append((snippet, label))
+    # with open(corpus_path, "r") as corpus_file:
+    for line in corpus_file:
+        line = line.strip()
+        words = line.split('\t')
+        snippet = words[0].split()
+        label = int(words[1])
+        result.append((snippet, label))
+    corpus_file.close()
     return result
 
 
@@ -183,13 +185,12 @@ def get_top_features(logreg_model, feature_dict, k=1):
 
 def main(args):
     model, feature_dict = train('train.txt')
-    print(model)
 
-    # print(test(model, feature_dict, 'test.txt'))
+    print(test(model, feature_dict, 'test.txt'))
 
-    # weights = get_top_features(model, feature_dict)
-    # for weight in weights:
-    #     print(weight)
+    weights = get_top_features(model, feature_dict)
+    for weight in weights:
+        print(weight)
     
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
