@@ -43,14 +43,18 @@ def is_negation(word):
 # Returns a list of strings
 def tag_negation(snippet):
     temp_string = " ".join(snippet) #convert the snippet to a single string
-    tagged_string = nltk.pos_tag(nltk.tokenize(temp_string))
+    tagged_string = nltk.pos_tag(nltk.word_tokenize(temp_string))
     length = len(snippet)
     negation_index = 0
     # find the negation word
-    while not is_negation(snippet[negation_index]):
-        negation_index += 1
+    negation_index = -1
+    for i in range(length):
+        if is_negation(snippet[i]):
+            negation_index = i
+    if negation_index == -1: return snippet
+            
     # no tagging if the case is "not only"
-    if snippet[negation_index] == "not" and snippet[negation_index+1] == "only":
+    if negation_index < length -1 and snippet[negation_index] == "not" and snippet[negation_index+1] == "only":
         return snippet
     tagging_pos = negation_index + 1
     while tagging_pos < length:
@@ -86,6 +90,7 @@ def get_feature_dictionary(corpus):
 def vectorize_snippet(snippet, feature_dict):
     feature_vector = numpy.zeros(len(feature_dict))
     for word in snippet:
+        if word not in feature_dict: continue
         feature_vector[feature_dict[word]] += 1
     return feature_vector
 
@@ -98,7 +103,7 @@ def vectorize_corpus(corpus, feature_dict):
     X = numpy.empty([len(corpus), len(feature_dict)])
     Y = numpy.empty(len(corpus))
     for i in range(len(corpus)):
-        X[i,:], Y[i]= vectorize_snippet(i[0]), i[1]
+        X[i,:], Y[i]= vectorize_snippet(corpus[i][0], feature_dict), corpus[i][1]
     return (X, Y)
 
 
@@ -107,7 +112,7 @@ def vectorize_corpus(corpus, feature_dict):
 # No return value
 def normalize(X):
     for col in range(X.shape[1]):
-        max_val, min_val = np.max(X[:,col]), np.min(X[:, col])
+        max_val, min_val = numpy.max(X[:,col]), numpy.min(X[:, col])
         if max_val == min_val: continue
         X[:,col] = X[:,col] - min_val / (max_val - min_val)
 
@@ -117,12 +122,12 @@ def normalize(X):
 # Returns a LogisticRegression
 def train(corpus_path):
     corpus = load_corpus(corpus_path)
-    for i in corpus:
-        i[0] = tag_negation(i[0])
+    for i in range(len(corpus)):
+        corpus[i]= (tag_negation(corpus[i][0]), corpus[i][1])
     feature_dict = get_feature_dictionary(corpus)
     vector = vectorize_corpus(corpus, feature_dict)
     normalize(vector[0])
-    model = sklearn.linear_model.LogisticRegression()
+    model = LogisticRegression()
     model.fit(vector[0], vector[1])
     return (model, feature_dict)
     
@@ -156,8 +161,8 @@ def evaluate_predictions(Y_pred, Y_test):
 # Returns a tuple of floats
 def test(model, feature_dict, corpus_path):
     corpus = load_corpus(corpus_path)
-    for i in corpus:
-        i[0] = tag_negation(i[0])
+    for i in range(len(corpus)):
+        corpus[i]= (tag_negation(corpus[i][0]), corpus[i][1])
     vector = vectorize_corpus(corpus, feature_dict)
     normalize(vector[0])
     Y_pred = model.predict(vector[0])
@@ -171,14 +176,12 @@ def test(model, feature_dict, corpus_path):
 # k is an int
 def get_top_features(logreg_model, feature_dict, k=1):
     features = logreg_model.coef_
-    feature_list = []
-    for i in range(features.size):
-        feature_list.append((i, features[i]))
+    feature_list = list(enumerate(features))
     top_k_features = sorted(feature_list, key=lambda x: abs(x[1]), reverse=True)[:k]
     for ele in top_k_features:
         for key, val in list(feature_dict.items()):
             if val == ele[0]:
-                ele[0] = key
+                ele = (key, ele[1])
     return top_k_features
         
 
