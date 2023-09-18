@@ -112,7 +112,7 @@ def vectorize_corpus(corpus, feature_dict):
 # No return value
 def normalize(X):
     for col in range(X.shape[1]):
-        max_val, min_val = numpy.max(X[:,col]), numpy.min(X[:, col])
+        max_val, min_val = max(X[:,col]), min(X[:, col])
         if max_val == min_val:
             X[:,col] = 0
         else:
@@ -140,7 +140,7 @@ def train(corpus_path):
 # Y_test is a Numpy array
 # Returns a tuple of floats
 def evaluate_predictions(Y_pred, Y_test):
-    length = Y_pred.size
+    length = len(Y_test)
     TP = FP = FN = 0
     for i in range(length):
         if Y_test[i] == 1:
@@ -150,9 +150,9 @@ def evaluate_predictions(Y_pred, Y_test):
                 FN += 1
         elif Y_test[i] == 0 and Y_pred[i] == 1:
             FP += 1
-    p = TP/(TP+FP)
-    r = TP/(TP+FN)
-    f = 2*p*r/(p+r)
+    p = TP/(TP+FP) if TP+FP else 0
+    r = TP/(TP+FN) if TP+FN else 0
+    f = 2*p*r/(p+r) if p+r else 0
     return (p, r, f)
                 
 
@@ -165,10 +165,9 @@ def test(model, feature_dict, corpus_path):
     corpus = load_corpus(corpus_path)
     for i in range(len(corpus)):
         corpus[i]= (tag_negation(corpus[i][0]), corpus[i][1])
-    vector = vectorize_corpus(corpus, feature_dict)
-    normalize(vector[0])
-    Y_pred = model.predict(vector[0])
-    Y_test = vector[1]
+    (X, Y_test) = vectorize_corpus(corpus, feature_dict)
+    normalize(X)
+    Y_pred = model.predict(X)
     return evaluate_predictions(Y_pred, Y_test)
 
 
