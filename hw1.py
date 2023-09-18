@@ -176,14 +176,13 @@ def test(model, feature_dict, corpus_path):
 # feature_dict is a dictionary {word: index}
 # k is an int
 def get_top_features(logreg_model, feature_dict, k=1):
-    features = logreg_model.coef_
-    feature_list = list(enumerate(features))
+    feature_list = []
+    for i in range(len(logreg_model.coef_[0])):
+        feature_list.append((i, logreg_model.coef_[0][i]))
     top_k_features = sorted(feature_list, key=lambda x: abs(x[1]), reverse=True)[:k]
-    for ele in top_k_features:
-        for key, val in list(feature_dict.items()):
-            if val == ele[0]:
-                ele = (key, ele[1])
-    return top_k_features
+    feature_dict_val_to_key = {val:key for key,val in feature_dict.items()}
+    top_k_features_with_word = [(feature_dict_val_to_key[i], weight) for i, weight in top_k_features]
+    return top_k_features_with_word
         
 
 
