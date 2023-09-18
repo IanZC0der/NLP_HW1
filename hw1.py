@@ -44,25 +44,19 @@ def is_negation(word):
 def tag_negation(snippet):
     temp_string = " ".join(snippet) #convert the snippet to a single string
     tagged_string = nltk.pos_tag(nltk.word_tokenize(temp_string))
-    length = len(snippet)
-    negation_index = 0
-    # find the negation word
-    negation_index = -1
-    for i in range(length):
-        if is_negation(snippet[i]):
-            negation_index = i
-    if negation_index == -1: return snippet
-            
-    # no tagging if the case is "not only"
-    if negation_index < length -1 and snippet[negation_index] == "not" and snippet[negation_index+1] == "only":
-        return snippet
-    tagging_pos = negation_index + 1
-    while tagging_pos < length:
-        # break if find either sentence-ending punctuation, a negation-ending word, or a comparative
-        if snippet[tagging_pos] in negation_enders or snippet[tagging_pos] in sentence_enders or (tagged_string[tagging_pos][-1] in set(["JJR", "RBR"])):
-            break
-        snippet[tagging_pos] = "NOT_" + snippet[tagging_pos]
-        tagging_pos += 1
+    negation_flag = False
+    for i, word in enumerate(snippet):
+        if negation_flag:
+            # find the ext negation word if the condition is true
+            if word in sentence_enders or word in negation_enders or tagged_string[i][-1] in set(["JJR", "RBR"]):
+                negation_flag = False
+                continue
+            snippet[i] = "NOT_" + snippet[i]
+        if is_negation(word):
+            if i < len(snippet) - 1 and word == "not" and snippet[i+1] == "only":
+                continue
+            # flip the flag
+            negation_flag =  not negation_flag
     return snippet
         
         
