@@ -115,7 +115,8 @@ def normalize(X):
         max_val, min_val = numpy.max(X[:,col]), numpy.min(X[:, col])
         if max_val == min_val:
             X[:,col] = 0
-        X[:,col] = X[:,col] - min_val / (max_val - min_val)
+        else:
+            X[:,col] = (X[:,col] - min_val) / (max_val - min_val)
 
 
 # Trains a model on a training corpus
