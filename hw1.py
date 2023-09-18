@@ -33,7 +33,7 @@ def load_corpus(corpus_path):
 # word is a string
 # Returns a boolean
 def is_negation(word):
-    if word.endswith("-n't") or word in negation_words:
+    if word.endswith("n't") or word.lower() in negation_words:
         return True
     return False
 
@@ -113,7 +113,8 @@ def vectorize_corpus(corpus, feature_dict):
 def normalize(X):
     for col in range(X.shape[1]):
         max_val, min_val = numpy.max(X[:,col]), numpy.min(X[:, col])
-        if max_val == min_val: continue
+        if max_val == min_val:
+            X[:,col] = 0
         X[:,col] = X[:,col] - min_val / (max_val - min_val)
 
 
